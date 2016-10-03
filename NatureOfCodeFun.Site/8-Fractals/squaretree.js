@@ -91,11 +91,12 @@
     }
 
     function drawBranch(iterations) {
+        var widthOffset = startWidthOffset * (iterations / maxIterations);
         gfx.beginPath();
-        gfx.moveTo(pos.re - length * startWidthOffset, pos.im);
-        gfx.lineTo(pos.re + length * startWidthOffset, pos.im);
-        gfx.lineTo(pos.re + length * startWidthOffset / 2, pos.im - length);
-        gfx.lineTo(pos.re - length * startWidthOffset / 2, pos.im - length);
+        gfx.moveTo(pos.re - length * widthOffset, pos.im);
+        gfx.lineTo(pos.re + length * widthOffset, pos.im);
+        gfx.lineTo(pos.re + length * widthOffset / 2, pos.im - length);
+        gfx.lineTo(pos.re - length * widthOffset / 2, pos.im - length);
         gfx.closePath();
         gfx.fillStyle = hexColor();
         gfx.fill();
@@ -135,6 +136,7 @@
 
         gfx.translate(Math.round(width / 2), Math.round(height * .9));
         length = startLength;
+        length *= cutoff;
 
         drawBranch(maxIterations);
 
