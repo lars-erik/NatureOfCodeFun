@@ -3,6 +3,9 @@
 <head>
     <title></title>
     <meta charset="utf-8" />
+    <link href="../Content/bootstrap.css" rel="stylesheet" />
+    <link href="../Content/bootstrap-theme.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.2.0/css/bootstrap-slider.css" rel="stylesheet" />
     <style type="text/css">
         body {
             background: black;
@@ -26,33 +29,49 @@
             color: white;
             padding: 10px;
         }
+
+        #params input {
+            color: black;
+        }
+
+        .slider.slider-horizontal {
+            width: 180px;
+        }
     </style>
 </head>
 <body>
-<canvas id="canvas"></canvas>
-<div id="params">
-    <div>
-        <label>Start length</label>
-        <input type="number" id="startLength" value="300"/>
+    <canvas id="canvas"></canvas>
+    <div id="params">
+        <div>
+            <label>Branches</label>
+            <input type="text" id="branches" value="3" data-slider-min="1" data-slider-max="8" />
+        </div>
+        <div>
+            <label>Start length</label>
+            <input type="text" id="startLength" value="250" data-slider-min="50" data-slider-max="400" />
+        </div>
+        <div>
+            <label>Start width</label>
+            <input type="text" id="startWidthOffset" value="0.025" data-slider-min="0.001" data-slider-max=".5" data-slider-step=".001" />
+        </div>
+        <div>
+            <label>Cutoff</label>
+            <input type="text" id="cutoff" value="0.73" data-slider-min="0.05" data-slider-max="0.99" data-slider-step="0.01" />
+        </div>
+        <div>
+            <label>Angle</label>
+            <input type="text" id="angle" value="1.45" data-slider-min="0.01" data-slider-max="6.28" data-slider-step="0.01" />
+        </div>
+        <div>
+            <label>Max iterations</label>
+            <input type="text" id="maxIterations" value="7" data-slider-min="1" data-slider-max="10" />
+        </div>
     </div>
-    <div>
-        <label>Start width</label>
-        <input type="number" id="startWidthOffset" value=".03"/>
-    </div>
-    <div>
-        <label>Cutoff</label>
-        <input type="number" id="cutoff" value=".65"/>
-    </div>
-    <div>
-        <label>Angle</label>
-        <input type="text" id="angle" value="Math.PI / 4"/>
-    </div>
-    <div>
-        <label>Max iterations</label>
-        <input type="number" id="maxIterations" value="6"/>
-    </div>
-</div>
-<script src="../Scripts/math.js"></script>
-<script src="squaretree.js"></script>
+
+    <script src="../Scripts/jquery-1.9.1.min.js"></script>
+    <script src="../Scripts/bootstrap.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.2.0/bootstrap-slider.js"></script>
+    <script src="../Scripts/math.js"></script>
+    <script src="squaretree.js"></script>
 </body>
 </html>
