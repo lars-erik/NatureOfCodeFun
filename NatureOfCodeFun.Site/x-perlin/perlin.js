@@ -28,10 +28,10 @@
                 yf = Math.floor(v[1] % size),
                 xsf = v[0] % 1,
                 ysf = v[1] % 1,
-                xe = xsf, // 3 * Math.pow(xsf, 2) - 2 * Math.pow(xsf, 3),
-                ye = ysf, // 3 * Math.pow(ysf, 2) - 2 * Math.pow(ysf, 3),
-                xse = xf + xe,
-                yse = yf + ye,
+                xe = 3 * Math.pow(xsf, 2) - 2 * Math.pow(xsf, 3),
+                ye = 3 * Math.pow(ysf, 2) - 2 * Math.pow(ysf, 3),
+                xse = xf + xsf,
+                yse = yf + ysf,
                 sv = [xse, yse],
                 ul = gradients[yf][xf],
                 ulv = [xf, yf],
@@ -48,8 +48,11 @@
                 dp1 = math.dot(ul, uld),
                 dp2 = math.dot(ur, urd),
                 dp3 = math.dot(bl, bld),
-                dp4 = math.dot(br, brd);
-            return (dp1 + dp2 + dp3 + dp4) / 4;
+                dp4 = math.dot(br, brd),
+                z1 = (dp1 * (1 - xe) + dp2 * (xe)),
+                z2 = (dp3 * (1 - xe) + dp4 * xe),
+                val = (z1 * (1 - ye) + z2 * ye);
+            return val;
         }
 
         init();

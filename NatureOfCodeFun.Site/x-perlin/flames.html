@@ -24,26 +24,38 @@
     <script src="perlin.js"></script>
 
     <script type="text/javascript">
-        var size = 10,
+        var size = 20,
             set = new noise.perlin(size),
             cvs = document.getElementById("canvas"),
             ctx = cvs.getContext("2d"),
             width = canvas.width = window.innerWidth,
             height = canvas.height = window.innerHeight,
             xscale = size / width,
-            val;
+            val,
+            y = 0,
+            incr = .03;
 
         ctx.fillStyle = "white";
+        ctx.translate(0, height / 2);
 
-        for (var x = 0; x < width; x++) {
-            val = set.noise([x * xscale, 0]);
+        function draw() {
+            ctx.clearRect(0, height / -2, width, height);
 
-            if (x % 10 == 0) {
-                console.log("noise at x " + x + " scaled to " + (x * xscale) + " is " + val);
+            for (var x = 0; x < width; x++) {
+                val = set.noise([x * xscale, y]);
+
+                if (x % 10 == 0) {
+                    console.log("noise at x " + x + " scaled to " + (x * xscale) + " is " + val);
+                }
+
+                ctx.fillRect(x, val * height / 2, 1, 1);
             }
 
-            ctx.fillRect(x, 400 + val * 300, 1, 1);
+            y += incr;
+            window.requestAnimationFrame(draw);
         }
+
+        draw();
 
     </script>
 </body>
