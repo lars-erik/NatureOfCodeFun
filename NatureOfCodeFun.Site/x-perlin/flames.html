@@ -33,9 +33,10 @@
             xscale = size / width,
             val,
             y = 0,
-            incr = .03;
+            incr = .15,
+            grad,
+            ht;
 
-        ctx.fillStyle = "white";
         ctx.translate(0, height / 2);
 
         function draw() {
@@ -43,12 +44,15 @@
 
             for (var x = 0; x < width; x++) {
                 val = set.noise([x * xscale, y]);
+                ht = val * height * .8;
 
-                if (x % 10 == 0) {
-                    console.log("noise at x " + x + " scaled to " + (x * xscale) + " is " + val);
-                }
+                grad = ctx.createLinearGradient(0, height - 150, 0, ht);
+                grad.addColorStop(0, "yellow");;
+                grad.addColorStop(.8, "red");
+                grad.addColorStop(1, "rgba(0, 0, 255, 0)");
+                ctx.fillStyle = grad;
 
-                ctx.fillRect(x, val * height / 2, 1, 1);
+                ctx.fillRect(x, ht, 1, height - ht);
             }
 
             y += incr;
