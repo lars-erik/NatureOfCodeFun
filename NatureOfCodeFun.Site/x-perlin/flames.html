@@ -47,9 +47,10 @@
                 ht = val * height * .6;
 
                 grad = ctx.createLinearGradient(0, height - 150, 0, ht);
-                grad.addColorStop(0, "yellow");;
-                grad.addColorStop(.8, "red");
-                grad.addColorStop(1, "rgba(0, 0, 255, 0)");
+                grad.addColorStop(0, "blue");
+                grad.addColorStop(0.1, "yellow");;
+                grad.addColorStop(.9, "red");
+                grad.addColorStop(1, "black");
                 ctx.fillStyle = grad;
 
                 ctx.fillRect(x, ht, 1, height - ht);
