@@ -24,7 +24,7 @@
     <script src="perlin.js"></script>
 
     <script type="text/javascript">
-        var size = 20,
+        var size = 5,
             set = new noise.perlin(size),
             cvs = document.getElementById("canvas"),
             ctx = cvs.getContext("2d"),
@@ -32,8 +32,11 @@
             height = canvas.height = window.innerHeight,
             xscale = size / width,
             val,
+            val2,
             y = 0,
-            incr = .15,
+            incr = .1,
+            xincr = 10,
+            xstart = 0,
             grad,
             ht;
 
@@ -43,20 +46,16 @@
             ctx.clearRect(0, height / -2, width, height);
 
             for (var x = 0; x < width; x++) {
-                val = set.noise([x * xscale, y]);
-                ht = val * height * .6;
+                val = set.noise([(xstart + x) * xscale, y]);
+                val2 = set.noise([(xstart + x + 300) * xscale / 2, y]);
 
-                grad = ctx.createLinearGradient(0, height/2, 0, ht);
-                grad.addColorStop(0, "black");
-                grad.addColorStop(.04, "rgba(100,100,255,1)");
-                grad.addColorStop(.07, "yellow");
-                grad.addColorStop(.9, "red");
-                grad.addColorStop(1, "black");
-                ctx.fillStyle = grad;
-
-                ctx.fillRect(x, ht, 1, height - ht);
+                ctx.fillStyle = "white";
+                ctx.fillRect(x, val * height * .2, 1, height / 10);
+                ctx.fillStyle = "blue";
+                ctx.fillRect(x, val2 * height * .2, 1, height );
             }
 
+            xstart += xincr;
             y += incr;
             window.requestAnimationFrame(draw);
         }
