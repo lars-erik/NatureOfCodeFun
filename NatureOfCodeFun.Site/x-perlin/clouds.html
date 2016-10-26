@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <style type="text/css">
+        body {
+            background: black;
+        }
+
+        #canvas {
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        #offcvs {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            /*position: fixed;
+            left: 0;
+            top: 0;*/
+            border: 1px solid white;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script src="../Scripts/math.js"></script>
+    <script src="perlin.js"></script>
+
+    <script type="text/javascript">
+        var size = 10,
+            set = new noise.perlin(size),
+            cvs = document.getElementById("canvas"),
+            offCvs = document.createElement("canvas"),
+            ctx = cvs.getContext("2d"),
+            offCtx = offCvs.getContext("2d"),
+            width = canvas.width = window.innerWidth,
+            height = canvas.height = window.innerHeight,
+            xsize = offCvs.width = 400, // Math.floor(width / 5),
+            ysize = offCvs.height = Math.floor(xsize * (height / width)),
+            xscale = size / xsize,
+            yscale = size / xsize,
+            val,
+            col,
+            cols = [],
+            x, y,
+            imageData,
+            idx;
+
+        function draw() {
+            imageData = offCtx.createImageData(xsize, ysize); // offCtx.getImageData(0, 0, xsize, ysize);
+
+            for (y = 0; y < ysize; y++) {
+                for (x = 0; x < xsize; x++) {
+                    idx = (y * xsize + x) * 4;
+                    val = set.noise([x * xscale, y * yscale]);
+                    col = Math.abs(Math.floor(Math.pow(val, 1) * 255));
+
+                    imageData.data[idx] = col;
+                    imageData.data[idx+1] = col;
+                    imageData.data[idx+2] = col;
+                    imageData.data[idx + 3] = 255;
+
+                    console.log(x + ", " + y);
+                }
+            }
+
+            offCtx.putImageData(imageData, 0, 0);
+            ctx.drawImage(offCvs, 0, 0, width, height);
+
+        }
+
+        draw();
+
+        document.body.onclick = function() {
+            set = new noise.perlin(size);
+            draw();
+        }
+
+    </script>
+</body>
+</html>

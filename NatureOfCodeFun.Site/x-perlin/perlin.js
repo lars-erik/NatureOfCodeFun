@@ -23,6 +23,14 @@
             return gradients[y][x];
         }
 
+        function subtract(a, b) {
+            return [a[0] - b[0], a[1] - b[1]];
+        }
+
+        function dot(a, b) {
+            return a[0] * b[0] + a[1] * b[1];
+        }
+
         this.noise = function(v) {
             var xf = Math.floor(v[0] % size),
                 yf = Math.floor(v[1] % size),
@@ -41,14 +49,14 @@
                 blv = [xf, yf + 1],
                 br = gradients[yf + 1][xf + 1],
                 brv = [xf + 1, yf + 1],
-                uld = math.subtract(sv, ulv),
-                urd = math.subtract(sv, urv),
-                bld = math.subtract(sv, blv),
-                brd = math.subtract(sv, brv),
-                dp1 = math.dot(ul, uld),
-                dp2 = math.dot(ur, urd),
-                dp3 = math.dot(bl, bld),
-                dp4 = math.dot(br, brd),
+                uld = subtract(sv, ulv),
+                urd = subtract(sv, urv),
+                bld = subtract(sv, blv),
+                brd = subtract(sv, brv),
+                dp1 = dot(ul, uld),
+                dp2 = dot(ur, urd),
+                dp3 = dot(bl, bld),
+                dp4 = dot(br, brd),
                 z1 = (dp1 * (1 - xe) + dp2 * (xe)),
                 z2 = (dp3 * (1 - xe) + dp4 * xe),
                 val = (z1 * (1 - ye) + z2 * ye);
