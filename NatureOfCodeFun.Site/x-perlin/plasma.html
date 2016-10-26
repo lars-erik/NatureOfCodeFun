@@ -37,7 +37,7 @@
 
     <script type="text/javascript">
         var size = 10,
-            set = new noise.perlin(size),
+            set = new noise.perlin(size, 3),
             cvs = document.getElementById("canvas"),
             offCvs = document.createElement("canvas"),
             ctx = cvs.getContext("2d"),
@@ -50,10 +50,11 @@
             yscale = size / xsize,
             val,
             col,
-            cols = [],
             x, y,
             imageData,
-            idx;
+            idx,
+            time = 0,
+            timeincr = 0.02;
 
         function draw() {
             imageData = offCtx.createImageData(xsize, ysize);
@@ -61,29 +62,32 @@
             for (y = 0; y < ysize; y++) {
                 for (x = 0; x < xsize; x++) {
                     idx = (y * xsize + x) * 4;
-                    val = set.noise([x * xscale, y * yscale]);
+                    val = set.noise([x * xscale, y * yscale, time]);
                     col = Math.abs(Math.floor(Math.pow(val, 1) * 255));
 
                     imageData.data[idx] = col;
-                    imageData.data[idx+1] = col;
-                    imageData.data[idx+2] = col;
+                    imageData.data[idx+1] = col * .3;
+                    imageData.data[idx+2] = col * .2;
                     imageData.data[idx + 3] = 255;
 
-                    console.log(x + ", " + y);
                 }
             }
 
             offCtx.putImageData(imageData, 0, 0);
             ctx.drawImage(offCvs, 0, 0, width, height);
 
+            time += timeincr;
+
+            requestAnimationFrame(draw);
+        }
+
+        function newFrame() {
+            set = new noise.perlin(size, 3);
         }
 
         draw();
 
-        document.body.onclick = function() {
-            set = new noise.perlin(size);
-            draw();
-        }
+        document.body.onclick = newFrame;
 
     </script>
 </body>
