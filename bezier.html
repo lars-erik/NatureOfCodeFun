@@ -2,7 +2,6 @@
 <html>
     <head>
         <title>Bezier</title>
-        
     </head>
     <body>
         <style>
@@ -30,11 +29,12 @@
                 clientSize,
                 time,
                 lines,
+                lines2,
                 maxLines = 50;
 
             class Time {
                 constructor() {
-                    this.start = Date.now() / 1000;
+                    this.start = Date.now() / 2000;
                     this.now = this.start;
                     this.delta = 0;
                     this.prev = this.start;
@@ -42,7 +42,7 @@
                 }
 
                 update() {
-                    this.now = Date.now() / 1000;
+                    this.now = Date.now() / 2000;
                     this.delta = this.now - this.prev;
                     this.prev = this.now;
                     this.total = this.now - this.start;
@@ -96,7 +96,7 @@
                 }
 
                 update() {
-                    this.delta = time.now - this.start;
+                    this.delta = (time.now - this.start);
 
                     if (this.delta >= this.speed) {
                         let inverseNext = this.path[2].add(this.path[2].subtract(this.path[1])).clamp(clientSize);
@@ -230,18 +230,32 @@
                 ctx.fillRect(0, 0, ctx.width, ctx.height);
 
                 lines.forEach(l => l.draw());
+                lines2.forEach(l => l.draw());
 
-                // lines[0].handles.forEach(handle => {
-                //     handle.draw();
-                // });
+                lines[0].handles.forEach(handle => {
+                    handle.draw();
+                });
+
+                lines2[0].handles.forEach(handle => {
+                    handle.draw();
+                });
 
                 lines[0].update();
+                lines2[0].update();
 
                 if (lines.length < maxLines) {
                     lines.push(lines[0].clone());
                 } else {
                     for(let i = Math.min(lines.length, maxLines) - 1; i>0; i--) {
                         lines[i] = lines[i-1].clone(i);
+                    }
+                }
+
+                if (lines2.length < maxLines) {
+                    lines2.push(lines2[0].clone());
+                } else {
+                    for(let i = Math.min(lines2.length, maxLines) - 1; i>0; i--) {
+                        lines2[i] = lines2[i-1].clone(i);
                     }
                 }
 
@@ -292,6 +306,13 @@
                     new Handle(new Vector2(200, 200)),
                     new Handle(new Vector2(400, 200)),
                     new Handle(new Vector2(500, 500))
+                ])];
+
+                lines2 = [new Line([
+                    new Handle(new Vector2(Math.random()*clientSize.x, Math.random()*clientSize.y)),
+                    new Handle(new Vector2(Math.random()*clientSize.x, Math.random()*clientSize.y)),
+                    new Handle(new Vector2(Math.random()*clientSize.x, Math.random()*clientSize.y)),
+                    new Handle(new Vector2(Math.random()*clientSize.x, Math.random()*clientSize.y))
                 ])];
 
                 requestAnimationFrame(update);
