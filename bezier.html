@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Bezier</title>
+    </head>
+    <body>
+        <style>
+            html {
+                width: 100%;
+                height: 100%;
+            }
+            body {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+            }
+            canvas {
+                position: fixed;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom:0;
+            }
+        </style>
+        <canvas></canvas>
+        <script>
+            let ctx, 
+                element,
+                clientSize,
+                time,
+                lines,
+                maxLines = 50;
+
+            class Time {
+                constructor() {
+                    this.start = Date.now() / 1000;
+                    this.now = this.start;
+                    this.delta = 0;
+                    this.prev = this.start;
+                    this.frame = 0;
+                }
+
+                update() {
+                    this.now = Date.now() / 1000;
+                    this.delta = this.now - this.prev;
+                    this.prev = this.now;
+                    this.total = this.now - this.start;
+                    this.frame++;
+                }
+            }
+
+            class Vector2 {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                }
+
+                clone() {
+                    return new Vector2(this.x, this.y);
+                }
+
+                add(vector) {
+                    return new Vector2(this.x + vector.x, this.y + vector.y);
+                }
+
+                subtract(vector) {
+                    return new Vector2(this.x - vector.x, this.y - vector.y);
+                }
+
+                multiply(scalar) {
+                    return new Vector2(this.x * scalar, this.y * scalar);
+                }
+
+                clamp(vector) {
+                    let v = new Vector2(this.x, this.y);
+                    if (v.x < 0) v.x = 0;
+                    if (v.x > vector.x) v.x = vector.x;
+                    if (v.y < 0) v.y = 0;
+                    if (v.y > vector.y) v.y = vector.y;
+                    return v;
+                }
+            }
+
+            class HandlePath {
+                constructor(handle, path) {
+                    this.speed = 1;
+                    this.handle = handle;
+                    this.start = time.now;
+                    this.delta = 0;
+                    this.path = path || [
+                        handle.position,
+                        new Vector2(Math.random()*clientSize.x, Math.random()*clientSize.y),
+                        new Vector2(Math.random()*clientSize.x, Math.random()*clientSize.y)
+                    ]
+                }
+
+                update() {
+                    this.delta = time.now - this.start;
+
+                    if (this.delta >= this.speed) {
+                        let inverseNext = this.path[2].add(this.path[2].subtract(this.path[1])).clamp(clientSize);
+                        this.path = [
+                            this.path[2],
+                            inverseNext,
+                            new Vector2(Math.random()*clientSize.x, Math.random()*clientSize.y)
+                        ];
+
+                        this.start = time.now;
+                        this.delta = 0;
+                    } 
+                    
+                    let q0 = lerp(this.path[0], this.path[1], this.delta);
+                    let q1 = lerp(this.path[1], this.path[2], this.delta);
+                    let p = lerp(q0, q1, this.delta);
+
+                    this.handle.position = p;
+                }
+            }
+
+            class Handle {
+                constructor(position, path) {
+                    this.position = position;
+                    this.path = new HandlePath(this, path);
+                }
+                
+                clone() {
+                    var handle = new Handle(this.position.clone(), this.path.path.map(x => x.clone()));
+                    return handle;
+                }
+
+                update() {
+                    this.path.update();
+                }
+
+                draw() {
+                    ctx.strokeStyle = "rgb(200,200,200)";
+                    ctx.strokeRect(this.position.x - 7.4, this.position.y - 7.4, 14.8, 14.8);
+                }
+
+                contains(point) {
+                    return point.x >= this.position.x - 7.4
+                        && point.x <= this.position.x + 7.4
+                        && point.y >= this.position.y - 7.4
+                        && point.y <= this.position.y + 7.4;
+                }
+            }
+
+            class Color {
+                constructor(r, g, b, a) {
+                    this.r = r;
+                    this.g = g;
+                    this.b = b;
+                    this.a = a;
+                }
+
+                clone() {
+                    return new Color(this.r, this.g, this.b, this.a);
+                }
+
+                toArgb() {
+                    return "rgba(" + this.r * 255 + ", " + this.g * 255 + ", " + this.b * 255 + ", " + this.a + ")";
+                }
+            }
+
+            class Line {
+                constructor(handles) {
+                    this.handles = handles;
+                    this.color = new Color(1, .5, .5, 1);
+                }
+
+                clone(generation) {
+                    let line = new Line(this.handles.map(x => x.clone()));
+                    let saturation = (1 - generation / maxLines);
+                    let a = saturation;
+                    line.color = this.color.clone();
+                    line.color.a = a;
+                    return line;
+                }
+
+                update() {
+                    this.color.r = Math.min(Math.max(0, this.color.r + (Math.random() - .5) * .1), 1)
+                    this.color.g = Math.min(Math.max(0, this.color.g + (Math.random() - .5) * .1), 1)
+                    this.color.b = Math.min(Math.max(0, this.color.b + (Math.random() - .5) * .1), 1)
+
+                    this.handles.forEach(h => h.update());
+                }
+
+                draw() {
+                    const points = 50;
+                    const incT = 1/points;
+
+                    ctx.strokeStyle = this.color.toArgb();
+                    ctx.beginPath();
+                    let first = true;
+                    for(let t = 0; t<=1 + incT - .01; t += incT) {
+                        let q0 = lerp(this.handles[0].position, this.handles[1].position, t);
+                        let q1 = lerp(this.handles[1].position, this.handles[2].position, t);
+                        let q2 = lerp(this.handles[2].position, this.handles[3].position, t);
+                        let r0 = lerp(q0, q1, t);
+                        let r1 = lerp(q1, q2, t);
+                        let b = lerp(r0, r1, t);
+                        if (first) {
+                            ctx.moveTo(b.x, b.y);
+                            first = false;
+                        } else {
+                            ctx.lineTo(b.x, b.y);
+                        }
+                    }
+                    ctx.stroke();
+                }
+            }
+
+            function lerp(v1, v2, t) {
+                return new Vector2(
+                    v1.x + t*(v2.x-v1.x),
+                    v1.y + t*(v2.y-v1.y)
+                );
+            }
+
+            function update() {
+
+                time.update();
+
+                // if (!dragTarget) {
+                //     handlePaths.forEach(p => p.update());
+                // }
+
+                ctx.fillStyle = "rgb(0, 0, 0)";
+                ctx.fillRect(0, 0, ctx.width, ctx.height);
+
+                lines.forEach(l => l.draw());
+
+                // lines[0].handles.forEach(handle => {
+                //     handle.draw();
+                // });
+
+                lines[0].update();
+
+                if (lines.length < maxLines) {
+                    lines.push(lines[0].clone());
+                } else {
+                    for(let i = Math.min(lines.length, maxLines) - 1; i>0; i--) {
+                        lines[i] = lines[i-1].clone(i);
+                    }
+                }
+
+                // if (lines.length < maxLines) {
+                //     lines.splice(0, 0, line[0].clone())
+                // }
+
+                requestAnimationFrame(update);
+            }
+
+            // document.addEventListener("mousedown", (evt) => {
+            //     handles.forEach(handle => {
+            //         if (handle.contains(new Vector2(evt.clientX, evt.clientY))){
+            //             dragTarget = handle;
+            //             originalPosition = handle.position;
+            //             console.log("Dragging ");
+            //             console.log(dragTarget);
+            //         }
+            //     });
+            // })
+
+            // document.addEventListener("mousemove", (evt) => {
+            //     if (dragTarget) {
+            //         dragTarget.position = new Vector2(evt.clientX, evt.clientY);
+            //     }
+            // })
+
+            // document.addEventListener("mouseup", (evt) => {
+            //     if (dragTarget) {
+            //         dragTarget.position = new Vector2(evt.clientX, evt.clientY);
+            //         dragTarget = null;
+            //     }
+            // })
+
+            document.addEventListener("DOMContentLoaded", () => {
+                element = document.getElementsByTagName("canvas")[0];
+                ctx = element.getContext("2d");
+                clientSize = new Vector2(document.body.clientWidth, document.body.clientHeight);
+                element.width = ctx.width = clientSize.x;
+                element.height = ctx.height = clientSize.y;
+                ctx.fillStyle = "rgb(0, 0, 0)";
+                ctx.fillRect(0, 0, ctx.width, ctx.height);
+
+                time = new Time();
+
+                lines = [new Line([
+                    new Handle(new Vector2(100, 500)),
+                    new Handle(new Vector2(200, 200)),
+                    new Handle(new Vector2(400, 200)),
+                    new Handle(new Vector2(500, 500))
+                ])];
+
+                requestAnimationFrame(update);
+            });
+
+        </script>
+    </body>
+</html>
