@@ -1,40 +1,31 @@
 import p5 from "p5";
+import example_1_2 from "./sketches/chapter-01/example.1.2";
+import example_1_3 from "./sketches/chapter-01/example.1.3";
 
+const sketches = {
+    "Example 01.02": example_1_2,
+    "Example 01.03": example_1_3,
+}
+const defaultSketch = "Example 01.03";
 const container = document.getElementById("container");
+const menu = document.getElementById("sketches");
 
-let sketch = function(p) {
-    let width = window.innerWidth;
-    let height = window.innerHeight - 50;
+let currentSketch = sketches[defaultSketch];
+let engine = new p5(currentSketch, container);
 
-    let location = new p5.Vector(100, 100);
-    let velocity = new p5.Vector(3, 10);
-
-    p.setup = function() {
-        p.createCanvas(width, height);
-        p.background(255);
-    };
-
-    p.draw = function() {
-        p.background(255);
-
-        location.add(velocity);
-
-        if ((location.x > width) || (location.x < 0)) {
-            velocity.x *= -1;
-        }
-        if ((location.y > height) || (location.y < 0)) {
-            velocity.y *= -1;
-        }
-
-        p.stroke(0);
-        p.fill(175);
-        p.ellipse(location.x, location.y, 16, 16);
-    }
+function load() {
+    let sketchName = menu.value;
+    engine.remove();
+    currentSketch = sketches[sketchName];
+    engine = new p5(currentSketch, container);
 }
 
-let engine = new p5(sketch, container);
+Object.keys(sketches).forEach(key => {
+    let option = document.createElement("option");
+    option.text = key;
+    menu.appendChild(option);
+})
+menu.options[Object.keys(sketches).indexOf(defaultSketch)].selected = true;
 
-document.getElementById("reset").addEventListener("click", () => {
-    engine.remove();
-    engine = new p5(sketch, container);
-});
+menu.addEventListener("change", load);
+document.getElementById("reset").addEventListener("click", load);
