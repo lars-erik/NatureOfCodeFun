@@ -1,11 +1,10 @@
 import { Vector } from "p5";
+import defaultSetup from "../defaultsetup";
 
 export default function(p) {
-    let width = window.innerWidth;
-    let height = window.innerHeight - 50;
-
     p.setup = function() {
-        p.createCanvas(width, height);
+        defaultSetup(p);
+        p.createCanvas(p.width, p.height);
         p.background(255);
     };
 
@@ -13,11 +12,15 @@ export default function(p) {
         p.background(255);
 
         let mouse = new Vector(p.mouseX, p.mouseY);
-        let center = new Vector(width / 2, height / 2);
+        let center = new Vector(p.width / 2, p.height / 2);
 
         mouse.sub(center);
 
-        p.translate(width / 2, height / 2);
+        let m = mouse.mag();
+        p.fill(0);
+        p.rect(0, 0, m, 10);
+
+        p.translate(p.width / 2, p.height / 2);
         p.strokeWeight(3);
         p.line(0, 0, mouse.x, mouse.y);
     }

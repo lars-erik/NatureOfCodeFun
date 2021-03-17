@@ -1,14 +1,13 @@
 import { Vector } from "p5";
+import defaultSetup from "./../defaultsetup";
 
 export default function(p) {
-    let width = window.innerWidth;
-    let height = window.innerHeight - 50;
-
     let location = new Vector(100, 100);
     let velocity = new Vector(3, 10);
 
     p.setup = function() {
-        p.createCanvas(width, height);
+        defaultSetup(p);
+        p.createCanvas(p.width, p.height);
         p.background(255);
     };
 
@@ -17,10 +16,10 @@ export default function(p) {
 
         location.add(velocity);
 
-        if ((location.x > width) || (location.x < 0)) {
+        if ((location.x > p.width) || (location.x < 0)) {
             velocity.x *= -1;
         }
-        if ((location.y > height) || (location.y < 0)) {
+        if ((location.y > p.height) || (location.y < 0)) {
             velocity.y *= -1;
         }
 

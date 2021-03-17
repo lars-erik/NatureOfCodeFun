@@ -11,13 +11,16 @@ const container = document.getElementById("container");
 const menu = document.getElementById("sketches");
 
 let currentSketch = sketches[defaultSketch];
-let engine = new p5(currentSketch, container);
+let engine = null;
 
 function load() {
     let sketchName = menu.value;
-    engine.remove();
+    if (engine) {
+        engine.remove();
+    }
     currentSketch = sketches[sketchName];
     engine = new p5(currentSketch, container);
+    window.engine = engine;
 }
 
 Object.keys(sketches).forEach(key => {
@@ -29,3 +32,5 @@ menu.options[Object.keys(sketches).indexOf(defaultSketch)].selected = true;
 
 menu.addEventListener("change", load);
 document.getElementById("reset").addEventListener("click", load);
+
+load();
