@@ -1,10 +1,7 @@
 import { Vector } from "p5";
-import defaultSetup from "../defaultsetup";
 
 export default function(p) {
     p.setup = function() {
-        defaultSetup(p);
-        p.createCanvas(p.width, p.height);
         p.background(255);
     };
 

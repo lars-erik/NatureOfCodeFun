@@ -1,4 +1,5 @@
 import p5 from "p5";
+import resizingSketch from "./sketches/resizingSketch";
 import example_1_2 from "./sketches/chapter-01/example.1.2";
 import example_1_3 from "./sketches/chapter-01/example.1.3";
 import example_1_6 from "./sketches/chapter-01/example.1.6";
@@ -21,7 +22,7 @@ function load() {
         engine.remove();
     }
     currentSketch = sketches[sketchName];
-    engine = new p5(currentSketch, container);
+    engine = new p5(resizingSketch(currentSketch), container);
     window.engine = engine;
 }
 

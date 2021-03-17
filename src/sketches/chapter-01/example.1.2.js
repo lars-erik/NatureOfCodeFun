@@ -1,13 +1,10 @@
 import { Vector } from "p5";
-import defaultSetup from "./../defaultsetup";
 
 export default function(p) {
     let location = new Vector(100, 100);
     let velocity = new Vector(3, 10);
 
     p.setup = function() {
-        defaultSetup(p);
-        p.createCanvas(p.width, p.height);
         p.background(255);
     };
 
@@ -25,6 +22,6 @@ export default function(p) {
 
         p.stroke(0);
         p.fill(175);
-        p.ellipse(location.x, location.y, 16, 16);
+        p.ellipse(location.x, location.y, 50, 50);
     }
 };
