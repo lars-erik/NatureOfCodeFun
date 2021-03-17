@@ -1,12 +1,14 @@
 import p5 from "p5";
 import example_1_2 from "./sketches/chapter-01/example.1.2";
 import example_1_3 from "./sketches/chapter-01/example.1.3";
+import example_1_6 from "./sketches/chapter-01/example.1.6";
 
 const sketches = {
     "Example 01.02": example_1_2,
     "Example 01.03": example_1_3,
+    "Example 01.06 Normalized vector": example_1_6,
 }
-const defaultSketch = "Example 01.03";
+const defaultSketch = "Example 01.06 Normalized vector";
 const container = document.getElementById("container");
 const menu = document.getElementById("sketches");
 
