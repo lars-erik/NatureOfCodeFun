@@ -16,8 +16,8 @@ export default function(innerSketch) {
         p.setup = () => {
             p.width = window.innerWidth;
             p.height = window.innerHeight - 50;
-            p.createCanvas(p.width, p.height);
-            inner.setup();
+            let c = p.createCanvas(p.width, p.height);
+            inner.setup(c);
         }
 
         p.draw = () => {

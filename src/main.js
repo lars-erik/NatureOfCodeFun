@@ -4,12 +4,15 @@ import example_1_2 from "./sketches/chapter-01/example.1.2";
 import example_1_3 from "./sketches/chapter-01/example.1.3";
 import example_1_6 from "./sketches/chapter-01/example.1.6";
 
+import nf_1 from "./sketches/mandelbrot/numberfile-render-squares";
+
 const sketches = {
     "Example 01.02": example_1_2,
     "Example 01.03": example_1_3,
     "Example 01.06 Normalized vector": example_1_6,
+    "Render squares": nf_1
 }
-const defaultSketch = "Example 01.06 Normalized vector";
+const defaultSketch = "Render squares";
 const container = document.getElementById("container");
 const menu = document.getElementById("sketches");
 
