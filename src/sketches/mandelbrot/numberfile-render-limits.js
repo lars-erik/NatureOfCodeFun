@@ -3,7 +3,7 @@ import { Vector } from "p5";
 class Circle {
     #local;
     #screen;
-    
+
     constructor(p, localPos, radius, strokeWeight, stroke, fill) {
         this.p = p;
         this.#local = localPos || new Vector(0, 0);
@@ -11,7 +11,7 @@ class Circle {
         this.radius = radius || 30;
         this.strokeWeight = strokeWeight || 2;
         this.stroke = stroke || 60;
-        this.fill = fill || 175; 
+        this.fill = fill || 175;
     }
 
     draw() {
@@ -22,7 +22,7 @@ class Circle {
         this.p.fill(this.fill);
         this.p.ellipse(screenLoc.x, screenLoc.y, this.radius, this.radius);
     }
-    
+
     local(v) {
         if (v) {
             this.#local = v;
@@ -49,8 +49,8 @@ class Knob extends Circle {
 
     draw() {
         super.draw();
-        
-        this.p.stroke(0,0,0,0);
+
+        this.p.stroke(0, 0, 0, 0);
         this.p.fill(0);
         this.p.textAlign(this.p.CENTER);
         this.p.text(this.name, this.screen().x, this.screen().y + this.radius / 3.5);
@@ -63,10 +63,14 @@ export default function (p) {
 
     let translation = new Vector(0, 0, 1);
     let ctx;
-    const maxIters = 1000;
+    const maxIters = 500;
 
-    let aKnob = new Knob(p, new Vector(0, 0), 'A', pointRadius, 2)
     let cKnob = new Knob(p, new Vector(0, 0), 'C', pointRadius, 2)
+
+    let limits = [];
+    let lastStable;
+    let lastUnstable;
+    let isDirty = true;
 
     p.setup = function (c) {
         ctx = c;
@@ -109,13 +113,11 @@ export default function (p) {
         let unitScr = p.toScreen(new Vector(2, 2));
         p.fill(0, 0, 0, 0);
         p.ellipse(0, 0, unitScr.x, unitScr.y);
-       
+
         ctx.drawingContext.setLineDash([1, 0]);
     }
 
     let drawCoords = (points) => {
-        const displayX = Math.round(aKnob.local().x * 100) / 100;
-        const displayY = Math.round(aKnob.local().y * 100) / 100;
         const displayXC = Math.round(cKnob.local().x * 100) / 100;
         const displayYC = Math.round(cKnob.local().y * 100) / 100;
 
@@ -123,28 +125,7 @@ export default function (p) {
         p.strokeWeight(0);
         p.fill(0);
         p.textAlign(p.RIGHT);
-        p.text(displayX + "+" + displayY + "i | " + 
-               displayXC + "+" + displayYC + "i | " + 
-               points.length + " | " +
-               points[points.length - 1].dist(points[points.length - 2]), translation.x - 20, translation.y - 20);
-    }
-
-    let drawConnectedDots = (points) => {
-        for(var i = points.length - 1; i>0; i--) {
-            let squarePos = p.toScreen(points[i]);
-            let prevPos = p.toScreen(points[i-1]);
-
-            p.stroke(60);
-            p.strokeWeight(1);
-            p.line(prevPos.x, prevPos.y, squarePos.x, squarePos.y);
-        }
-        for(var i = points.length - 1; i>0; i--) {
-            let squarePos = p.toScreen(points[i]);
-
-            p.strokeWeight(2);
-            p.fill(190);
-            p.ellipse(squarePos.x, squarePos.y, pointRadius - 5, pointRadius - 5);
-        }
+        p.text(displayXC + "+" + displayYC + "i", translation.x - 20, translation.y - 20);
     }
 
     let iterate = (a, c) => {
@@ -160,7 +141,7 @@ export default function (p) {
                 prev.x * prev.y * 2
             ).add(c);
             points.push(square);
-        } while(square.mag() < 2 && iters++ < maxIters - 2)
+        } while (square.mag() < 2 && iters++ < maxIters - 2)
 
         return points;
     }
@@ -169,15 +150,16 @@ export default function (p) {
         translation = new Vector(p.width / 2, p.height / 2);
         p.mouse = new Vector(p.mouseX, p.mouseY).sub(translation);
 
-        let knobs = [aKnob, cKnob];
-        for(var i = 0; i<knobs.length; i++) {
+        let knobs = [cKnob];
+        for (var i = 0; i < knobs.length; i++) {
             let knob = knobs[i];
             if (p.mouseIsPressed && p.mouse.dist(knob.screen()) < pointRadius) {
                 knob.dragging = true;
-            } else if (!p.mouseIsPressed) {
+            } else if (!p.mouseIsPressed && knob.dragging) {
                 knob.dragging = false;
             }
             if (knob.dragging) {
+                isDirty = true;
                 knob.screen(p.mouse);
                 break;
             }
@@ -188,13 +170,48 @@ export default function (p) {
 
         drawGrid();
 
-        let points = iterate(aKnob.local(), cKnob.local());
 
-        drawConnectedDots(points);
+        p.strokeWeight(1);
+        p.stroke(0);
+        p.fill(60, 60, 180);
+
+        let from = new Vector(0, 0);
+        let rays = 360;
+        if (isDirty) {
+            limits = [];
+            for (i = 0; i < rays; i++) {
+                const cutoff = .6;
+                let dir = Math.PI * 2 / rays * i;
+                let vDir = new Vector(Math.cos(dir), Math.sin(dir));
+                let unit = 2;
+                let mag = unit;
+
+                for (let j = 0; j < 10; j++) {
+                    let v = vDir.copy().mult(mag);
+                    let points = iterate(v, cKnob.local());
+                    if (points.length >= maxIters) {
+                        lastStable = v;
+                        mag += unit *= cutoff;
+                    } else {
+                        lastUnstable = v;
+                        mag -= unit *= cutoff;
+                    }
+                }
+
+                let limit = lastStable.copy().add(lastUnstable).div(2);
+                limits.push(limit);
+            }
+        }
+
+        for (let i = 0; i < limits.length; i++) {
+            let limit = limits[i];
+            p.ellipse(p.toScreen(limit).x, p.toScreen(limit).y, 5, 5);
+        }
+
+        isDirty = false;
 
         cKnob.draw(p);
-        aKnob.draw(p);
 
-        drawCoords(points);
+        drawCoords();
     }
 };

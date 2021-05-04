@@ -5,14 +5,16 @@ import example_1_3 from "./sketches/chapter-01/example.1.3";
 import example_1_6 from "./sketches/chapter-01/example.1.6";
 
 import nf_1 from "./sketches/mandelbrot/numberfile-render-squares";
+import nf_2 from "./sketches/mandelbrot/numberfile-render-limits";
 
 const sketches = {
     "Example 01.02": example_1_2,
     "Example 01.03": example_1_3,
     "Example 01.06 Normalized vector": example_1_6,
-    "Render squares": nf_1
+    "Render squares": nf_1,
+    "Render limits": nf_2,
 }
-const defaultSketch = "Render squares";
+const defaultSketch = "Render limits";
 const container = document.getElementById("container");
 const menu = document.getElementById("sketches");
 
